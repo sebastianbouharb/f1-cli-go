@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -61,7 +62,10 @@ type Constructor struct {
 
 func main () {
 	
-	data, err := fetchStandings()
+	season := flag.String("season", "2026", "F1 season year")
+	flag.Parse()
+	
+	data, err := fetchStandings(*season)
 
 	if err != nil {
 		fmt.Println(err)
@@ -79,7 +83,7 @@ func main () {
 	for _, s := range drivers {
 
 		if len(s.Constructors) == 0 {
-			fmt.Printf("%s - no constructor data", s.Driver.FamilyName)
+			fmt.Printf("%s - no constructor data\n", s.Driver.FamilyName)
 			continue
 		}
 		fmt.Printf("P%s %s (%s) - %s pts\n", s.Position, s.Driver.FamilyName, s.Constructors[0].Name, s.Points )
@@ -89,9 +93,11 @@ func main () {
 
 }
 
-func fetchStandings() (Response, error){
+func fetchStandings(season string) (Response, error){
 
-	resp, err := http.Get("https://api.jolpi.ca/ergast/f1/2026/driverstandings/") // captures a response code and an error code
+	url := fmt.Sprintf("https://api.jolpi.ca/ergast/f1/%s/driverstandings/",season)
+
+	resp, err := http.Get(url) // captures a response code and an error code
 	if err != nil {	// checks for error other an nil	
 			return Response{}, err	
 	}
