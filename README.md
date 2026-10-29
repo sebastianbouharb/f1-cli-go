@@ -1,6 +1,6 @@
 # f1-cli-go
 
-##Welcome to the F1 Stats Fetcher!
+## Welcome to the F1 Stats Fetcher!
 
 
 ## Usage
