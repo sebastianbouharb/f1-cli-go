@@ -10,9 +10,6 @@ Download the file for your system from the Releases page, then follow the [Insta
 f1                 # standings for the default season (2026)
 f1 --season 2025   # standings for a specific season
 ```
-Mac/Linux:
-  chmod +x f1-mac-arm64
-  ./f1-mac-arm64 --season (specified season year, ex. 2025)
 
 ## Install (run `f1` from anywhere)
 To use `f1` from any folder, rename the file to `f1` and put it in a folder on your PATH.
@@ -60,5 +57,3 @@ Use the file you downloaded for your system: `f1-mac-arm64` (Apple Silicon), `f1
 f1 --season 2025
 ```
 If you see `command not found` (or `not recognized` on Windows), open a new terminal and check that the folder is on your PATH.
-Windows:
-  .\f1-windows.exe --season (specified season year, ex. 2025)
