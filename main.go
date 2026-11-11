@@ -6,16 +6,21 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 //MRData, StandingsTable, StandingsList, and DriverStanding
 
+
+const pageSize int = 100; // represents the number of drivers that 
+	// are return per request
 
 type Response struct {	// contains all data from api
 	MRData MRData
 }
 
 type MRData struct { // focuses on the API's standings table
+	Total string
 	StandingsTable StandingsTable
 }
 
@@ -34,6 +39,7 @@ type StandingsLists struct {	// brances of the Standings list according to API
 type DriverStandings struct { // brances of the Drivers standings according to API
 
 	Position string
+	PositionText string
 	Points string
 	Wins string
 	Driver Driver
@@ -69,7 +75,7 @@ func main () {
 	season := flag.String("season", "2026", "F1 season year")
 	flag.Parse()
 	
-	data, err := fetchStandings(*season) // return data and err code, takes season pointer as param
+	data, err := fetchStandings(*season, 0) // return data and err code, takes season pointer as param
 
 	if err != nil { // other than nil check
 		fmt.Println(err)
@@ -90,16 +96,22 @@ func main () {
 			fmt.Printf("%s - no constructor data\n", s.Driver.FamilyName)
 			continue // skip if no constructor data
 		}
-		fmt.Printf("P%s %s (%s) - %s pts\n", s.Position, s.Driver.FamilyName, s.Constructors[0].Name, s.Points ) // print formated driver data
+
+		// print formated driver data
+		if s.PositionText == "-" {
+			fmt.Printf("- %s (%s) - %s pts\n", s.Driver.FamilyName, s.Constructors[0].Name, s.Points ) 
+		} else {
+			fmt.Printf("P%s %s (%s) - %s pts\n", s.PositionText, s.Driver.FamilyName, s.Constructors[0].Name, s.Points ) 
+		}
 	}
 
 
 
 }
 
-func fetchStandings(season string) (Response, error){
-
-	url := fmt.Sprintf("https://api.jolpi.ca/ergast/f1/%s/driverstandings/",season) // store API url 
+func fetchStandings(season string, offset int) (Response, error){
+	
+	url := fmt.Sprintf("https://api.jolpi.ca/ergast/f1/%s/driverstandings/?limit=%d&offset=%d",season, 100, offset) // store API url 
 
 	resp, err := http.Get(url) // captures a response code and an error code
 	if err != nil {	// checks for error other an nil	
@@ -129,4 +141,42 @@ func fetchStandings(season string) (Response, error){
 
 	return result, nil
 	
+}
+
+func fetchAllDrivers(season string) ([]DriverStandings, error){
+
+	var all []DriverStandings // create a list of all drivers
+	offset := 0 // set offset to zero
+
+	for {
+		resp, err := fetchStandings(season, offset)
+		if err != nil { // check fetch doesnt return an error
+			return nil, err 
+		}
+		
+
+		lists := resp.MRData.StandingsTable.StandingsLists // store the Standings lists
+		if len(lists) == 0{	// check len isn't zero
+			break
+		}
+
+		page := lists[0].DriverStandings // store the drivers standings page
+		if len(page) == 0 { // if the page doesnt have anything,  break
+			break
+		}
+		all = append(all, page...) // append the page to all
+
+		total, err := strconv.Atoi(resp.MRData.Total)	//convert the total to an int
+		if err != nil { // check for error
+			return nil, err
+		}
+
+		if (len(all) >= total){ // checl that the number of drivers in all is >= total
+			break
+		}
+
+		offset += pageSize // incrememnt the offset by the page size
+	}
+
+	return all, nil // return the full list of drivers
 }
