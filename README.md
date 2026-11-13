@@ -2,14 +2,45 @@
 
 ## Welcome to the F1 Stats Fetcher ! 🏎️ 🏁 🏆
 
+This command line tool pulls data from the Jolpica F1 API to return stats such as driver standings, constructor standings, driver bios, etc. 
+
+
+
+
 
 ## Usage
 Download the file for your system from the Releases page, then follow the [Install](#install-run-f1-from-anywhere) steps below.
 
 ```sh
-f1                 # standings for the default season (2026)
-f1 --season 2025   # standings for a specific season
+f1                                   # standings for the default season (2026)
+f1 --season 2025                     # standings for a specific season (earliest is 1950)
+f1 --driver hamilton                 # bio of a specific driver from the default season (2026)
+f1 --driver schumacher --season 2005 # bio of a specific driver from a specific season 
+f1 --constructors                    # constructors standings for default season (2026)
+f1 --constructors --season 2025      # constructors standings for a specific season
 ```
+
+## How I built this
+All Go code is written completely by me
+
+Claude Code was used as an assistant, helping with guidance, debugging, some documentation, and release tasks
+
+## What I learned / tech used
+- Go's standard libraries
+- API Pagination
+- Cross-compiling across 4 platforms
+- Git branches, PRs, and releases
+
+## Roadmap
+Upcoming features: 
+   - f1 --next
+   - improved error handling
+   - constructor bios
+
+Please reach out to suggest features you would like to see!
+
+## Credits
+Thank you so much to Jolpica for the free API!
 
 ## Install (run `f1` from anywhere)
 To use `f1` from any folder, rename the file to `f1` and put it in a folder on your PATH.
