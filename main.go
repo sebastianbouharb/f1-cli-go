@@ -315,3 +315,41 @@ func fetchAllDrivers(season string) ([]DriverStandings, error) {
 
 	return all, nil // return the full list of drivers
 }
+
+func fetchAllDrivers(season string) ([]DriverStandings, error){
+
+	var all []DriverStandings // create a list of all drivers
+	offset := 0 // set offset to zero
+
+	for {
+		resp, err := fetchStandings(season, offset)
+		if err != nil { // check fetch doesnt return an error
+			return nil, err 
+		}
+		
+
+		lists := resp.MRData.StandingsTable.StandingsLists // store the Standings lists
+		if len(lists) == 0{	// check len isn't zero
+			break
+		}
+
+		page := lists[0].DriverStandings // store the drivers standings page
+		if len(page) == 0 { // if the page doesnt have anything,  break
+			break
+		}
+		all = append(all, page...) // append the page to all
+
+		total, err := strconv.Atoi(resp.MRData.Total)	//convert the total to an int
+		if err != nil { // check for error
+			return nil, err
+		}
+
+		if (len(all) >= total){ // checl that the number of drivers in all is >= total
+			break
+		}
+
+		offset += pageSize // incrememnt the offset by the page size
+	}
+
+	return all, nil // return the full list of drivers
+}
